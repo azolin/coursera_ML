@@ -4,7 +4,12 @@ Coursera Course Practical Machine Learning
 ## Repo includes: 
 
 - pml-project.Rmd: R markdown file for project code
-- pml-project.html: knitted html file
+- pml-project.html: knitted html file (compiled and run)
 - pml-training.csv: training data
 - pml-testing.csv: testing data
 - readme: this file
+
+NOTE: 
+- github _will not_ show html directly, use 
+http://htmlpreview.github.io/?https://github.com/azolin/coursera_ML/blob/master/pml-project.html
+or download it locally to see rendered html file
