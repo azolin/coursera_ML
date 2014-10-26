@@ -78,118 +78,44 @@ training$classe &lt;- as.factor(training$classe)</code></pre>
 <div id="perform-training" class="section level2">
 <h2>Perform training</h2>
 <p>For this project, 3 models are trained (gradient boosting machine (gbm), random forest (rf) and flexible discriminant analysis (fda)</p>
-<p>Each model is trained on 10% of training set and models are evaluated on test set composed from rest of the training set Note: training set had to be reduced to allow training in reasonable time frame with avaliable hardware, it is expected this is not optimal size of training set.</p>
-<pre class="r"><code>train50 &lt;- createDataPartition(y=training$classe, p=0.10,list=FALSE)
+<p>Each model is trained on 25% of training set and models are evaluated on test set composed from rest of the training set Note: training set had to be reduced to allow training in reasonable time frame with avaliable hardware, it is expected this is not optimal size of training set.</p>
+<pre class="r"><code>train50 &lt;- createDataPartition(y=training$classe, p=0.25,list=FALSE)
 modeltrain &lt;-training[train50,]
 modelcomparison &lt;- training[-train50,]</code></pre>
 <div id="training-rf" class="section level3">
 <h3>Training RF:</h3>
 <pre class="r"><code>rfmodel &lt;- train(classe ~ ., data=modeltrain,method=&quot;rf&quot;,prox=TRUE,verbose=FALSE)</code></pre>
+<pre><code>## Loading required package: randomForest
+## randomForest 4.6-10
+## Type rfNews() to see new features/changes/bug fixes.</code></pre>
 </div>
 <div id="summary" class="section level3">
 <h3>Summary:</h3>
 <pre class="r"><code>rfmodel</code></pre>
 <pre><code>## Random Forest 
 ## 
-## 1964 samples
+## 4907 samples
 ##   28 predictor
 ##    5 classes: 'A', 'B', 'C', 'D', 'E' 
 ## 
 ## No pre-processing
 ## Resampling: Bootstrapped (25 reps) 
 ## 
-## Summary of sample sizes: 1964, 1964, 1964, 1964, 1964, 1964, ... 
+## Summary of sample sizes: 4907, 4907, 4907, 4907, 4907, 4907, ... 
 ## 
 ## Resampling results across tuning parameters:
 ## 
 ##   mtry  Accuracy  Kappa  Accuracy SD  Kappa SD
-##    2    0.9       0.8    0.01         0.02    
-##   15    0.9       0.8    0.02         0.02    
-##   28    0.9       0.8    0.02         0.02    
+##    2    0.9       0.9    0.007        0.009   
+##   15    0.9       0.9    0.007        0.009   
+##   28    0.9       0.9    0.007        0.009   
 ## 
 ## Accuracy was used to select the optimal model using  the largest value.
-## The final value used for the model was mtry = 2.</code></pre>
+## The final value used for the model was mtry = 15.</code></pre>
 </div>
 <div id="training-gbm" class="section level3">
 <h3>Training GBM:</h3>
 <pre class="r"><code>gbmmodel &lt;- train(classe ~ ., data=modeltrain,method=&quot;gbm&quot;,verbose=FALSE)</code></pre>
-</div>
-<div id="summary-1" class="section level3">
-<h3>Summary:</h3>
-<pre class="r"><code>gbmmodel</code></pre>
-<pre><code>## Stochastic Gradient Boosting 
-## 
-## 1964 samples
-##   28 predictor
-##    5 classes: 'A', 'B', 'C', 'D', 'E' 
-## 
-## No pre-processing
-## Resampling: Bootstrapped (25 reps) 
-## 
-## Summary of sample sizes: 1964, 1964, 1964, 1964, 1964, 1964, ... 
-## 
-## Resampling results across tuning parameters:
-## 
-##   interaction.depth  n.trees  Accuracy  Kappa  Accuracy SD  Kappa SD
-##   1                   50      0.6       0.5    0.02         0.03    
-##   1                  100      0.7       0.6    0.02         0.02    
-##   1                  150      0.7       0.6    0.02         0.02    
-##   2                   50      0.7       0.7    0.02         0.03    
-##   2                  100      0.8       0.7    0.01         0.02    
-##   2                  150      0.8       0.8    0.01         0.02    
-##   3                   50      0.8       0.7    0.02         0.02    
-##   3                  100      0.8       0.8    0.02         0.02    
-##   3                  150      0.8       0.8    0.01         0.02    
-## 
-## Tuning parameter 'shrinkage' was held constant at a value of 0.1
-## Accuracy was used to select the optimal model using  the largest value.
-## The final values used for the model were n.trees = 150,
-##  interaction.depth = 3 and shrinkage = 0.1.</code></pre>
-</div>
-<div id="training-fda" class="section level3">
-<h3>Training FDA:</h3>
-<pre class="r"><code>fdamodel &lt;- train(classe ~., data=modeltrain,method=&quot;fda&quot;)</code></pre>
-</div>
-<div id="summary-2" class="section level3">
-<h3>Summary:</h3>
-<pre class="r"><code>fdamodel</code></pre>
-<pre><code>## Flexible Discriminant Analysis 
-## 
-## 1964 samples
-##   28 predictor
-##    5 classes: 'A', 'B', 'C', 'D', 'E' 
-## 
-## No pre-processing
-## Resampling: Bootstrapped (25 reps) 
-## 
-## Summary of sample sizes: 1964, 1964, 1964, 1964, 1964, 1964, ... 
-## 
-## Resampling results across tuning parameters:
-## 
-##   nprune  Accuracy  Kappa  Accuracy SD  Kappa SD
-##    2      0.4       0.1    0.01         0.01    
-##   19      0.6       0.5    0.02         0.03    
-##   37      0.7       0.6    0.02         0.02    
-## 
-## Tuning parameter 'degree' was held constant at a value of 1
-## Accuracy was used to select the optimal model using  the largest value.
-## The final values used for the model were degree = 1 and nprune = 37.</code></pre>
-</div>
-</div>
-<div id="model-accuracy-calculation" class="section level2">
-<h2>Model accuracy calculation</h2>
-<pre class="r"><code>predrf &lt;- predict(rfmodel,modelcomparison)</code></pre>
-<pre><code>## Loading required package: randomForest
-## randomForest 4.6-10
-## Type rfNews() to see new features/changes/bug fixes.</code></pre>
-<pre class="r"><code>predfda &lt;- predict(fdamodel,modelcomparison)</code></pre>
-<pre><code>## Loading required package: earth
-## Loading required package: plotmo
-## Loading required package: plotrix
-## Loading required package: mda
-## Loading required package: class
-## Loaded mda 0.4-4</code></pre>
-<pre class="r"><code>predgbm &lt;- predict(gbmmodel,modelcomparison)</code></pre>
 <pre><code>## Loading required package: gbm
 ## Loading required package: survival
 ## Loading required package: splines
@@ -203,7 +129,81 @@ modelcomparison &lt;- training[-train50,]</code></pre>
 ## Loading required package: parallel
 ## Loaded gbm 2.1
 ## Loading required package: plyr</code></pre>
-<pre class="r"><code>trainpredrf &lt;- predict(rfmodel,modeltrain)
+</div>
+<div id="summary-1" class="section level3">
+<h3>Summary:</h3>
+<pre class="r"><code>gbmmodel</code></pre>
+<pre><code>## Stochastic Gradient Boosting 
+## 
+## 4907 samples
+##   28 predictor
+##    5 classes: 'A', 'B', 'C', 'D', 'E' 
+## 
+## No pre-processing
+## Resampling: Bootstrapped (25 reps) 
+## 
+## Summary of sample sizes: 4907, 4907, 4907, 4907, 4907, 4907, ... 
+## 
+## Resampling results across tuning parameters:
+## 
+##   interaction.depth  n.trees  Accuracy  Kappa  Accuracy SD  Kappa SD
+##   1                   50      0.7       0.6    0.011        0.01    
+##   1                  100      0.7       0.6    0.011        0.01    
+##   1                  150      0.7       0.7    0.009        0.01    
+##   2                   50      0.8       0.7    0.014        0.02    
+##   2                  100      0.8       0.8    0.011        0.01    
+##   2                  150      0.8       0.8    0.010        0.01    
+##   3                   50      0.8       0.8    0.010        0.01    
+##   3                  100      0.9       0.8    0.008        0.01    
+##   3                  150      0.9       0.9    0.008        0.01    
+## 
+## Tuning parameter 'shrinkage' was held constant at a value of 0.1
+## Accuracy was used to select the optimal model using  the largest value.
+## The final values used for the model were n.trees = 150,
+##  interaction.depth = 3 and shrinkage = 0.1.</code></pre>
+</div>
+<div id="training-fda" class="section level3">
+<h3>Training FDA:</h3>
+<pre class="r"><code>fdamodel &lt;- train(classe ~., data=modeltrain,method=&quot;fda&quot;)</code></pre>
+<pre><code>## Loading required package: earth
+## Loading required package: plotmo
+## Loading required package: plotrix
+## Loading required package: mda
+## Loading required package: class
+## Loaded mda 0.4-4</code></pre>
+</div>
+<div id="summary-2" class="section level3">
+<h3>Summary:</h3>
+<pre class="r"><code>fdamodel</code></pre>
+<pre><code>## Flexible Discriminant Analysis 
+## 
+## 4907 samples
+##   28 predictor
+##    5 classes: 'A', 'B', 'C', 'D', 'E' 
+## 
+## No pre-processing
+## Resampling: Bootstrapped (25 reps) 
+## 
+## Summary of sample sizes: 4907, 4907, 4907, 4907, 4907, 4907, ... 
+## 
+## Resampling results across tuning parameters:
+## 
+##   nprune  Accuracy  Kappa  Accuracy SD  Kappa SD
+##    2      0.4       0.1    0.009        0.008   
+##   19      0.6       0.5    0.014        0.017   
+##   36      0.7       0.6    0.012        0.015   
+## 
+## Tuning parameter 'degree' was held constant at a value of 1
+## Accuracy was used to select the optimal model using  the largest value.
+## The final values used for the model were degree = 1 and nprune = 36.</code></pre>
+</div>
+</div>
+<div id="model-accuracy-calculation" class="section level2">
+<h2>Model accuracy calculation</h2>
+<pre class="r"><code>predrf &lt;- predict(rfmodel,modelcomparison)
+predfda &lt;- predict(fdamodel,modelcomparison)
+predgbm &lt;- predict(gbmmodel,modelcomparison)
+trainpredrf &lt;- predict(rfmodel,modeltrain)
 trainpredfda &lt;- predict(fdamodel,modeltrain)
 trainpredgbm &lt;- predict(gbmmodel,modeltrain)</code></pre>
 </div>
@@ -213,21 +213,21 @@ trainpredgbm &lt;- predict(gbmmodel,modeltrain)</code></pre>
 <h3>RF model accuracy:</h3>
 <ul>
 <li>training set accuracy = 100 %</li>
-<li>model comparison set accuracy = 89.7893 %</li>
+<li>model comparison set accuracy = 95.9565 %</li>
 </ul>
 </div>
 <div id="fda-model-accuracy" class="section level3">
 <h3>FDA model accuracy:</h3>
 <ul>
-<li>training set accuracy = 73.0652 %</li>
-<li>model comparison set accuracy = 70.4213 %</li>
+<li>training set accuracy = 73.0385 %</li>
+<li>model comparison set accuracy = 72.0557 %</li>
 </ul>
 </div>
 <div id="gmb-model-accuracy" class="section level3">
 <h3>GMB model accuracy:</h3>
 <ul>
-<li>training set accuracy = 97.5051 %</li>
-<li>model comparison set accuracy = 86.6406 %</li>
+<li>training set accuracy = 94.6607 %</li>
+<li>model comparison set accuracy = 90.282 %</li>
 </ul>
 </div>
 </div>
@@ -240,27 +240,27 @@ combinedpred &lt;- predict(combmodel,predDF)
 combmodel</code></pre>
 <pre><code>## Flexible Discriminant Analysis 
 ## 
-## 17658 samples
+## 14715 samples
 ##     3 predictor
 ##     5 classes: 'A', 'B', 'C', 'D', 'E' 
 ## 
 ## No pre-processing
 ## Resampling: Bootstrapped (25 reps) 
 ## 
-## Summary of sample sizes: 17658, 17658, 17658, 17658, 17658, 17658, ... 
+## Summary of sample sizes: 14715, 14715, 14715, 14715, 14715, 14715, ... 
 ## 
 ## Resampling results across tuning parameters:
 ## 
 ##   nprune  Accuracy  Kappa  Accuracy SD  Kappa SD
-##   2       0.5       0.3    0.005        0.004   
-##   5       0.9       0.9    0.003        0.004   
-##   8       0.9       0.9    0.003        0.004   
+##   2       0.5       0.3    0.005        0.005   
+##   4       0.8       0.7    0.010        0.013   
+##   6       1.0       0.9    0.002        0.003   
 ## 
 ## Tuning parameter 'degree' was held constant at a value of 1
 ## Accuracy was used to select the optimal model using  the largest value.
-## The final values used for the model were degree = 1 and nprune = 5.</code></pre>
+## The final values used for the model were degree = 1 and nprune = 6.</code></pre>
 <ul>
-<li>combined model training set accuracy = 89.7893 %</li>
+<li>combined model training set accuracy = 95.9565 %</li>
 </ul>
 </div>
 </div>

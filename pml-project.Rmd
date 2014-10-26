@@ -1,3 +1,8 @@
+---
+output:
+  html_document:
+    keep_md: yes
+---
 Coursera Project - Practical Machine Learning
 ========================================================
 ## Abstract
@@ -35,10 +40,10 @@ training$classe <- as.factor(training$classe)
 ## Perform training
 For this project, 3 models are trained (gradient boosting machine (gbm), random forest (rf) and flexible discriminant analysis (fda)
 
-Each model is trained on 10% of training set and models are evaluated on test set composed from rest of the training set
+Each model is trained on 25% of training set and models are evaluated on test set composed from rest of the training set
 Note: training set had to be reduced to allow training in reasonable time frame with avaliable hardware, it is expected this is not optimal size of training set.
 ```{r cache=TRUE, warning=FALSE}
-train50 <- createDataPartition(y=training$classe, p=0.10,list=FALSE)
+train50 <- createDataPartition(y=training$classe, p=0.25,list=FALSE)
 modeltrain <-training[train50,]
 modelcomparison <- training[-train50,]
 ```
