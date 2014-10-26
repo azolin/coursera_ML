@@ -1,0 +1,10 @@
+Coursera Course Practical Machine Learning
+===========================================
+
+## Repo includes: 
+
+- pml-project.Rmd: R markdown file for project code
+- pml-project.html: knitted html file
+- pml-training.csv: training data
+- pml-testing.csv: testing data
+- readme: this file

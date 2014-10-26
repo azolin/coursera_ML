@@ -1,0 +1,101 @@
+Coursera Project - Practical Machine Learning
+========================================================
+## Abstract
+Ensamble of three models is trained in attempt to predict type of exercise
+activity from set of parameters obtained from wearable tech. 
+Three different models are tested and combination is used to as final predictor.
+
+## Load caret library
+```{r warning=FALSE}
+library("caret")
+```
+
+## Load Data set (training)
+```{r warning=FALSE}
+raw_training <- read.csv(file="pml-training.csv")
+raw_training$classe <- as.factor(raw_training$classe)
+```
+## Prepare Training set:
+Following covariates will be used in training (other contain too many NAs to be 
+of much use or lack any useful meaning)
+- roll_belt, pitch_belt, yaw_belt
+- gyros_belt_x, y and z
+- accel_belt_x, y and z
+- magnet_belt_x, y and z
+- roll_arm, yaw_arm, pitch_arm
+- total_accel_arm
+- gyros_arm_x, y and z
+- accel_arm_x, y and z
+- magnet_arm_x_y and z
+- roll_dumbbell, pitch_dumbbell, yaw_dumbbell
+```{r warning=FALSE}
+training <- raw_training[, which(names(raw_training) %in% c("roll_belt","pitch_belt","yaw_belt","gyros_belt_x","gyros_belt_y","gyros_belt_z","accel_belt_x","accel_belt_y","accel_belt_z","magnet_belt_x","magnet_belt_y","magnet_belt_z","roll_arm","yaw_arm","pitch_arm","total_accel_arm","gyros_arm_x","gyros_arm_y","gyros_arm_z","accel_arm_x","accel_arm_y","accel_arm_z","magnet_arm_x","magnet_arm_y","magnet_arm_z","roll_dumbbell","pitch_dumbbell","yaw_dumbbell","classe"))]
+training$classe <- as.factor(training$classe)
+```
+## Perform training
+For this project, 3 models are trained (gradient boosting machine (gbm), random forest (rf) and flexible discriminant analysis (fda)
+
+Each model is trained on 10% of training set and models are evaluated on test set composed from rest of the training set
+Note: training set had to be reduced to allow training in reasonable time frame with avaliable hardware, it is expected this is not optimal size of training set.
+```{r cache=TRUE, warning=FALSE}
+train50 <- createDataPartition(y=training$classe, p=0.10,list=FALSE)
+modeltrain <-training[train50,]
+modelcomparison <- training[-train50,]
+```
+###Training RF:
+```{r cache=TRUE, warning=FALSE}
+rfmodel <- train(classe ~ ., data=modeltrain,method="rf",prox=TRUE,verbose=FALSE)
+```
+###Summary: 
+```{r warning=FALSE}
+rfmodel
+```
+###Training GBM:
+```{r cache=TRUE, warning=FALSE}
+gbmmodel <- train(classe ~ ., data=modeltrain,method="gbm",verbose=FALSE)
+```
+###Summary:
+```{r}
+gbmmodel
+```
+###Training FDA:
+```{r cache=TRUE, warning=FALSE}
+fdamodel <- train(classe ~., data=modeltrain,method="fda")
+```
+###Summary: 
+```{r}
+fdamodel
+```
+## Model accuracy calculation
+```{r warning=FALSE}
+predrf <- predict(rfmodel,modelcomparison)
+predfda <- predict(fdamodel,modelcomparison)
+predgbm <- predict(gbmmodel,modelcomparison)
+trainpredrf <- predict(rfmodel,modeltrain)
+trainpredfda <- predict(fdamodel,modeltrain)
+trainpredgbm <- predict(gbmmodel,modeltrain)
+```
+## Models accuracy:
+### RF model accuracy:
+- training set accuracy = `r sum(trainpredrf==modeltrain$classe)/nrow(modeltrain)*100` %
+- model comparison set accuracy = `r sum(predrf==modelcomparison$classe)/nrow(modelcomparison)*100` %
+
+
+### FDA model accuracy: 
+- training set accuracy = `r sum(trainpredfda==modeltrain$classe)/nrow(modeltrain)*100` %
+- model comparison set accuracy = `r sum(predfda==modelcomparison$classe)/nrow(modelcomparison)*100` %
+
+
+### GMB model accuracy:
+- training set accuracy = `r sum(trainpredgbm==modeltrain$classe)/nrow(modeltrain)*100` %
+- model comparison set accuracy = `r sum(predgbm==modelcomparison$classe)/nrow(modelcomparison)*100` %
+
+## Assemble models into combined predictor
+Prediction is performed with each model and new model is trained to combine predictors
+```{r cache=TRUE, warning=FALSE}
+predDF <- data.frame(predrf,predgbm,predfda,classe=modelcomparison$classe)
+combmodel <- train(classe ~ ., data=predDF,method="fda")
+combinedpred <- predict(combmodel,predDF)
+combmodel
+```
+- combined model training set accuracy = `r sum(combinedpred==predDF$classe)/nrow(predDF)*100` %
